@@ -1,0 +1,79 @@
+Experiment no:11 Date:
+IMPLEMENTATION OF IMAGE RESTORATION METHODS
+Aim: Write a MATLAB program to Implementation of Image Restoration methods
+Software Required : MATLAB
+
+MATLAB Program:
+clc;
+clear all;
+close all;
+% Read the original image
+I = imread('cameraman.tif');
+% Convert RGB image to grayscale if necessary
+if size(I, 3) == 3
+ I = rgb2gray(I);
+end
+% Convert image to double format
+I = im2double(I);
+% Add Gaussian noise
+noisy = imnoise(I, 'gaussian', 0, 0.01);
+% Mean filter
+mean_img = imfilter(noisy, fspecial('average', [3 3]), 'replicate');
+% Median filter
+median_img = medfilt2(noisy, [3 3]);
+% Gaussian filter
+gaussian_img = imgaussfilt(noisy, 1);
+% Create motion blur degradation
+PSF = fspecial('motion', 15, 30);
+% Apply motion blur
+blurred = imfilter(I, PSF, 'conv', 'circular');
+% Add Gaussian noise to blurred image
+blur_noisy = imnoise(blurred, 'gaussian', 0, 0.001); 48
+% Inverse filtering
+inverse_img = deconvwnr(blur_noisy, PSF, 0);
+% Regularized restoration
+inverse_reg_img = deconvreg(blur_noisy, PSF, 0.001);
+% Wiener restoration
+wiener_img = deconvwnr(blur_noisy, PSF, 0.001);
+% Lucy-Richardson restoration
+lucy_img = deconvlucy(blur_noisy, PSF, 10);
+% Display PSNR values
+fprintf('\nPSNR values compared with original image:\n');
+fprintf('Noisy Image : %.2f dB\n', psnr(noisy, I));
+fprintf('Mean Filter : %.2f dB\n', psnr(mean_img, I));
+fprintf('Median Filter : %.2f dB\n', psnr(median_img, I));
+fprintf('Gaussian Filter : %.2f dB\n', psnr(gaussian_img, I));
+fprintf('Motion Blur + Noise: %.2f dB\n', psnr(blur_noisy, I));
+fprintf('Inverse Restoration: %.2f dB\n', psnr(inverse_img, I));
+fprintf('Regularized Restoration: %.2f dB\n', psnr(inverse_reg_img, I));
+fprintf('Wiener Restoration: %.2f dB\n', psnr(wiener_img, I));
+fprintf('Lucy-Richardson : %.2f dB\n', psnr(lucy_img, I));
+% Display all images
+figure('Name', 'Image Restoration Methods');
+subplot(3,3,1);
+imshow(I);
+title('Original Image');
+subplot(3,3,2);
+imshow(noisy);
+title('Noisy Image');
+subplot(3,3,3);
+imshow(mean_img);
+title('Mean Filter');
+subplot(3,3,4);
+imshow(median_img);
+title('Median Filter');
+subplot(3,3,5); 49
+imshow(gaussian_img);
+title('Gaussian Filter');
+subplot(3,3,6);
+imshow(blur_noisy);
+title('Motion Blur + Noise');
+subplot(3,3,7);
+imshow(inverse_reg_img, []);
+title('Regularized Restoration');
+subplot(3,3,8);
+imshow(wiener_img, []);
+title('Wiener Restoration');
+subplot(3,3,9);
+imshow(lucy_img, []);
+title('Lucy-Richardson Restoration');
